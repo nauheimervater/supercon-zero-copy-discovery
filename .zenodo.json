@@ -1,7 +1,7 @@
 {
-  "title": "Toward Zero-Copy ML/DFT Materials Screening on Unified-Memory APUs: Pipeline Architecture (Work in Progress)",
-  "version": "1.0.1",
-  "description": "Work-in-progress technical note and code: Magpie-style compositional features, Allen-Dynes Tc, a periodic core-repulsion filter, and C++/HIP zero-copy (hipHostMallocMapped + torch::from_blob) sources for unified-memory APUs (AMD Strix Halo). Version 1.0.1 withdraws unverified latency and DFT figures reported in 1.0.0.",
+  "title": "Toward Zero-Copy ML/DFT Materials Screening on Unified-Memory APUs: Pipeline Architecture and First DFT Results (Work in Progress)",
+  "version": "1.0.2",
+  "description": "Work-in-progress technical note and code: Magpie-style compositional features, Allen-Dynes Tc, a periodic core-repulsion filter, C++/HIP zero-copy (hipHostMallocMapped + torch::from_blob) sources for unified-memory APUs (AMD Strix Halo), and Quantum ESPRESSO v7.5 SCF inputs/outputs for five generated candidates. Latency/speedup figures from 1.0.0 are withdrawn pending a measured benchmark.",
   "upload_type": "software",
   "creators": [
     {
@@ -12,6 +12,7 @@
   "license": "MIT",
   "keywords": [
     "Superconductivity",
+    "Quantum ESPRESSO",
     "MACE",
     "Unified Memory",
     "ROCm",

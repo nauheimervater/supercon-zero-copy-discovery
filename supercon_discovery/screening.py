@@ -8,7 +8,7 @@ Pipeline:
      prevent NaN-gradient cascades during unified-memory relaxation.
   4. A simple analytic latency model for zero-copy vs. copy-based relaxation loops.
      NOTE (v1.0.1): this is a model with user-supplied inputs, NOT a measurement.
-     Measured gfx1151 benchmarks and Quantum ESPRESSO outputs are not yet published.
+     Measured gfx1151 benchmarks are not yet published.
 
 Author: Thomas Nauheimer (2026)
 License: MIT

@@ -1,0 +1,43 @@
+&CONTROL
+  calculation = 'scf'
+  prefix = 'cuin2k'
+  outdir = './tmp'
+  pseudo_dir = '/usr/share/espresso/pseudo'
+  tprnfor = .true.
+  tstress = .true.
+/
+
+&SYSTEM
+  ibrav = 0
+  nat = 4
+  ntyp = 3
+  ecutwfc = 50
+  ecutrho = 400
+  occupations = 'smearing'
+  smearing = 'cold'
+  degauss = 0.02
+/
+
+&ELECTRONS
+  conv_thr = 1.0d-6
+  mixing_beta = 0.3
+/
+
+ATOMIC_SPECIES
+  Cu      63.5460  Cu.pbe-dn-kjpaw_psl.1.0.0.UPF
+  In     114.8180  In.pbe-dn-kjpaw_psl.1.0.0.UPF
+  K       39.0980  K.pbe-spn-kjpaw_psl.1.0.0.UPF
+
+CELL_PARAMETERS angstrom
+     5.383785364    0.000000000   -1.271907220
+     0.241090581    3.241165496    0.113417388
+     0.000000000    0.000000000   15.400192261
+
+ATOMIC_POSITIONS crystal
+  In      0.137940347    0.814250827    0.505033433
+  In      0.479465634    0.316331685    0.388108730
+  K       0.139798507    0.317036152    0.000634678
+  Cu      0.635895848    0.819692075    0.801527441
+
+K_POINTS automatic
+  4 4 2  0 0 0

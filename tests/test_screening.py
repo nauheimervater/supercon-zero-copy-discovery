@@ -7,6 +7,8 @@ from supercon_discovery import (
     allen_dynes_tc,
     apply_core_repulsion_filter,
     zero_copy_transfer_speedup,
+    QE_TOP5_FORMULAS,
+    load_qe_top5,
 )
 
 
@@ -57,6 +59,20 @@ class TestSuperConDiscovery(unittest.TestCase):
         self.assertAlmostEqual(zc["zero_copy_total_s"], 1.0)
         self.assertAlmostEqual(zc["copy_based_total_s"], 1.1)
         self.assertAlmostEqual(zc["modeled_speedup"], 1.1)
+
+    def test_qe_top5_outputs_match_paper_table(self):
+        # Parses the raw pw.x outputs shipped in data/qe_top5/ (no hard-coded results).
+        rows = {r["formula"]: r for r in load_qe_top5()}
+        self.assertEqual(set(rows), set(QE_TOP5_FORMULAS))
+        for r in rows.values():
+            self.assertTrue(r["converged"] and r["job_done"])
+            self.assertEqual(r["qe_version"], "v.7.5")
+            self.assertEqual((r["ecutwfc_ry"], r["ecutrho_ry"]), (50.0, 400.0))
+        b = rows["BaBiTe"]
+        self.assertAlmostEqual(b["total_energy_ry"], -1704.43, places=2)
+        self.assertAlmostEqual(b["fermi_energy_ev"], 2.98, places=2)
+        self.assertAlmostEqual(b["pressure_kbar"], 189.36, places=2)
+        self.assertEqual(b["scf_iterations"], 24)
 
 
 if __name__ == "__main__":

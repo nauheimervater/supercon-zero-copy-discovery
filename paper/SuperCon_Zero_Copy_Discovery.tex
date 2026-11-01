@@ -3,20 +3,37 @@
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb}
 \usepackage{geometry}
+\usepackage{booktabs}
 \usepackage{hyperref}
 \geometry{margin=2.5cm}
 
-\title{\textbf{Toward Zero-Copy ML/DFT Materials Screening on Unified-Memory APUs:\\Pipeline Architecture (Work in Progress)}}
+\title{\textbf{Toward Zero-Copy ML/DFT Materials Screening on Unified-Memory APUs:\\Pipeline Architecture and First DFT Results (Work in Progress)}}
 \author{Thomas Nauheimer\\Independent Researcher (\texttt{nauheimer.t@gmail.com})}
-\date{November 2026 --- Version 1.0.1}
+\date{November 2026 --- Version 1.0.2}
 
 \begin{document}
 \maketitle
 
-\section*{Status and Erratum (v1.0.1)}
-Version 1.0.0 reported a per-step relaxation latency of 144.7\,ms, a Quantum ESPRESSO results table for five generated candidates (including BaBiTe), and a DiffCSP-SC loss table. On re-audit, none of these figures is backed by measurement outputs in this repository; they are \textbf{withdrawn}. This version describes the architecture and the components verifiable from the published code. See \texttt{paper/SuperCon\_Zero\_Copy\_Discovery.md} for the full text.
+\section*{Status and Erratum}
+Withdrawn since v1.0.1: the 144.7\,ms/step latency and all speedup figures (an analytic-model default in v1.0.0, not a measurement), the DiffCSP-SC loss table, and the parametric $T_c$ estimate. Restored in v1.0.2: the Quantum ESPRESSO SCF results, withdrawn by mistake in v1.0.1; raw inputs/outputs are in \texttt{data/qe\_top5/}. Correction: QE v7.5 was used (v1.0.0 stated v7.3). Full text: \texttt{paper/SuperCon\_Zero\_Copy\_Discovery.md}.
 
-\section*{Abstract}
-We describe a closed-loop pipeline for superconductor candidate screening on a unified-memory workstation (AMD Ryzen AI Max+ 395 / Strix Halo, ROCm): Magpie-style compositional screening, a DiffCSP-style structure generator, a C++/HIP relaxation layer using \texttt{hipHostMallocMapped} buffers wrapped by \texttt{torch::from\_blob} (no explicit host--device copies), and a hand-off to Quantum ESPRESSO. On Strix Halo there is no PCIe link between CPU and iGPU; any benefit of the zero-copy design stems from avoided copy and dispatch overhead and must be established by a same-GPU mapped-vs-copied benchmark, which is pending. Quantitative performance and DFT results will be published only together with raw outputs.
+\section*{DFT results}
+Single-point SCF, Quantum ESPRESSO v7.5, PBE, PAW (pslibrary 1.0.0), 50/400\,Ry, $4\times4\times2$ MP mesh, Marzari--Vanderbilt smearing 0.02\,Ry.
+
+\begin{center}
+\begin{tabular}{lrrrrr}
+\toprule
+Candidate & $E_{\mathrm{tot}}$ (Ry) & SCF iter. & $P$ (kbar) & $E_F$ (eV) & Force (Ry/Bohr) \\
+\midrule
+CeIn$_3$ & $-1703.79$ & 16 & $-27.8$ & 2.34 & 0.024 \\
+Sb$_2$Te$_3$ & $-1782.81$ & 18 & $-33.1$ & 1.26 & 0.073 \\
+BaBiTe & $-1704.43$ & 24 & $+189.4$ & 2.98 & 0.021 \\
+AuPd$_{11}$ & $-4415.78$ & 22 & $-20.8$ & 6.15 & 0.676 \\
+CuIn$_2$K & $-1147.38$ & 15 & $-19.7$ & 1.16 & 0.036 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+These are static calculations on unrelaxed generated cells. They establish SCF convergence only; no relaxation, convex-hull, completed phonon or electron--phonon calculation is reported, and no $T_c$ is claimed. The +189\,kbar residual stress of BaBiTe indicates a cell far from equilibrium. On Strix Halo there is no PCIe link between CPU and iGPU; the benefit of the zero-copy design must be shown by a same-GPU mapped-vs-copied benchmark, which is pending.
 
 \end{document}

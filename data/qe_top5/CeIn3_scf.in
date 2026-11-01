@@ -1,0 +1,42 @@
+&CONTROL
+  calculation = 'scf'
+  prefix = 'cein3'
+  outdir = './tmp'
+  pseudo_dir = '/usr/share/espresso/pseudo'
+  tprnfor = .true.
+  tstress = .true.
+/
+
+&SYSTEM
+  ibrav = 0
+  nat = 4
+  ntyp = 2
+  ecutwfc = 50
+  ecutrho = 400
+  occupations = 'smearing'
+  smearing = 'cold'
+  degauss = 0.02
+/
+
+&ELECTRONS
+  conv_thr = 1.0d-6
+  mixing_beta = 0.3
+/
+
+ATOMIC_SPECIES
+  Ce     140.1160  Ce.pbe-spdn-kjpaw_psl.1.0.0.UPF
+  In     114.8180  In.pbe-dn-kjpaw_psl.1.0.0.UPF
+
+CELL_PARAMETERS angstrom
+     5.337386075    0.000000000   -1.393871355
+     0.285575221    3.404236666   -0.008789931
+     0.000000000    0.000000000   15.346398354
+
+ATOMIC_POSITIONS crystal
+  In      0.250997573    0.659253478    0.156938538
+  In      0.754497468    0.158841804    0.657087445
+  Ce      0.265802592    0.159617737    0.341112912
+  In      0.751031041    0.660132110    0.962792873
+
+K_POINTS automatic
+  4 4 2  0 0 0

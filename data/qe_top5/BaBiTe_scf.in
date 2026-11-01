@@ -1,0 +1,42 @@
+&CONTROL
+  calculation = 'scf'
+  prefix = 'babite'
+  outdir = './tmp'
+  pseudo_dir = '/usr/share/espresso/pseudo'
+  tprnfor = .true.
+  tstress = .true.
+/
+
+&SYSTEM
+  ibrav = 0
+  nat = 3
+  ntyp = 3
+  ecutwfc = 50
+  ecutrho = 400
+  occupations = 'smearing'
+  smearing = 'cold'
+  degauss = 0.02
+/
+
+&ELECTRONS
+  conv_thr = 1.0d-6
+  mixing_beta = 0.3
+/
+
+ATOMIC_SPECIES
+  Ba     137.3270  Ba.pbe-spn-kjpaw_psl.1.0.0.UPF
+  Bi     208.9800  Bi.pbe-dn-kjpaw_psl.1.0.0.UPF
+  Te     127.6000  Te.pbe-n-kjpaw_psl.1.0.0.UPF
+
+CELL_PARAMETERS angstrom
+     5.579012379    0.000000000   -1.404210964
+     0.756459830    2.219600455   -0.069868690
+     0.000000000    0.000000000   16.703424454
+
+ATOMIC_POSITIONS crystal
+  Ba      0.251274228    0.145036995    0.563494086
+  Te      0.609369516    0.152341560    0.227684900
+  Bi      0.870377243    0.709056914    0.831125140
+
+K_POINTS automatic
+  4 4 2  0 0 0

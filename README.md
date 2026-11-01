@@ -8,21 +8,26 @@ Technical note: [`paper/SuperCon_Zero_Copy_Discovery.md`](paper/SuperCon_Zero_Co
 
 ## Status
 
-> **Erratum (v1.0.1):** v1.0.0 reported a 144.7 ms/step relaxation latency, a Quantum ESPRESSO results table for five generated candidates (incl. BaBiTe) and a diffusion-loss table. These figures are **not backed by measurement outputs in this repository** and have been **withdrawn**. Measured results will only be added together with their raw logs and input/output files.
+- **Included (v1.0.2):** Quantum ESPRESSO v7.5 SCF inputs, outputs and CIF structures for five generated candidates in [`data/qe_top5/`](data/qe_top5/). The DFT table is regenerated from these raw files by `supercon_discovery/qe_parse.py` and checked in the unit tests.
+- **Withdrawn (since v1.0.1):** the 144.7 ms/step latency and all speedup figures (in v1.0.0 these came from an analytic model with assumed inputs, not a measurement), the diffusion-loss table, and the parametric $T_c$ estimate.
+- **Note:** v1.0.1 also withdrew the QE table; that was a mistake, corrected in v1.0.2.
 
-## What this repository contains
+## DFT results (single-point SCF, PBE/PAW, 50/400 Ry)
 
-- `supercon_discovery/screening.py` – Magpie-style compositional features, Allen–Dynes McMillan $T_c$, periodic 1.20 Å core-repulsion filter, and an analytic latency model that requires measured inputs.
-- `cpp/mace_zero_copy_engine.cpp`, `cpp/verify_zero_copy.cpp` – C++/HIP sources that allocate `hipHostMallocMapped` buffers and wrap them with `torch::from_blob` (no explicit host↔device copies) on a unified-memory APU (AMD Strix Halo, gfx1151).
-- `tests/` – unit tests for the components above.
+| Candidate | $E_{\text{tot}}$ (Ry) | SCF iter. | Pressure (kbar) | $E_F$ (eV) | Total force (Ry/Bohr) |
+|---|---:|---:|---:|---:|---:|
+| CeIn₃ | −1703.79 | 16 | −27.8 | 2.34 | 0.024 |
+| Sb₂Te₃ | −1782.81 | 18 | −33.1 | 1.26 | 0.073 |
+| BaBiTe | −1704.43 | 24 | +189.4 | 2.98 | 0.021 |
+| AuPd₁₁ | −4415.78 | 22 | −20.8 | 6.15 | 0.676 |
+| CuIn₂K | −1147.38 | 15 | −19.7 | 1.16 | 0.036 |
 
-Note: on Strix Halo there is no PCIe link between CPU and iGPU. Any benefit of the zero-copy design comes from avoided copy/dispatch overhead and has to be shown by a same-GPU mapped-vs-copied benchmark.
+These are static calculations on unrelaxed generated cells: they show SCF convergence, not stability or superconductivity. See the limitations section of the technical note.
 
-## Planned
+## What else this repository contains
 
-1. Same-GPU benchmark on gfx1151: mapped vs. copied buffers for a 54-atom MACE relaxation step, with raw timing logs.
-2. Quantum ESPRESSO SCF/DFPT runs for generated candidates, with all input and output files.
-3. Screening training script and generator training logs.
+- `supercon_discovery/screening.py` – Magpie-style features, Allen–Dynes McMillan $T_c$, periodic 1.20 Å core-repulsion filter, and an analytic latency model that requires measured inputs.
+- `cpp/mace_zero_copy_engine.cpp`, `cpp/verify_zero_copy.cpp` – C++/HIP sources that allocate `hipHostMallocMapped` buffers and wrap them with `torch::from_blob` on a unified-memory APU (AMD Strix Halo, gfx1151). On Strix Halo there is no PCIe link between CPU and iGPU; the benefit of zero-copy has to be shown by a same-GPU mapped-vs-copied benchmark (pending).
 
 ## Quickstart
 

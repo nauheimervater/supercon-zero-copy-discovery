@@ -50,6 +50,12 @@ def main() -> None:
             flush(); story.append(Paragraph(inline(s[3:]), h2))
         elif s.startswith("# "):
             flush(); story.append(Paragraph(inline(s[2:]), h1)); story.append(Spacer(1, 4))
+        elif s.startswith("|"):
+            flush()
+            if re.match(r"^\|[\s\-:|]+\|$", s):
+                continue
+            cells = [inline(c.strip()) for c in s.strip("|").split("|")]
+            story.append(Paragraph(" &nbsp;|&nbsp; ".join(cells), body))
         elif re.match(r"^(\d+\.|-)\s", s):
             flush(); story.append(Paragraph(inline(s), body))
         else:

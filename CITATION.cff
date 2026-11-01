@@ -4,8 +4,8 @@ authors:
   - family-names: "Nauheimer"
     given-names: "Thomas"
     email: "nauheimer.t@gmail.com"
-title: "Toward Zero-Copy ML/DFT Materials Screening on Unified-Memory APUs: Pipeline Architecture (Work in Progress)"
-version: 1.0.1
+title: "Toward Zero-Copy ML/DFT Materials Screening on Unified-Memory APUs: Pipeline Architecture and First DFT Results (Work in Progress)"
+version: 1.0.2
 date-released: 2026-11-01
 url: "https://github.com/nauheimervater/supercon-zero-copy-discovery"
 repository-code: "https://github.com/nauheimervater/supercon-zero-copy-discovery"
@@ -13,6 +13,7 @@ license: MIT
 keywords:
   - superconductivity
   - crystal structure prediction
+  - Quantum ESPRESSO
   - MACE
   - unified memory APU
   - ROCm

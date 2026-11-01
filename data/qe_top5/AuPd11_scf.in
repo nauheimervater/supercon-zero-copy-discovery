@@ -1,0 +1,50 @@
+&CONTROL
+  calculation = 'scf'
+  prefix = 'aupd11'
+  outdir = './tmp'
+  pseudo_dir = '/usr/share/espresso/pseudo'
+  tprnfor = .true.
+  tstress = .true.
+/
+
+&SYSTEM
+  ibrav = 0
+  nat = 12
+  ntyp = 2
+  ecutwfc = 50
+  ecutrho = 400
+  occupations = 'smearing'
+  smearing = 'cold'
+  degauss = 0.02
+/
+
+&ELECTRONS
+  conv_thr = 1.0d-6
+  mixing_beta = 0.3
+/
+
+ATOMIC_SPECIES
+  Au     196.9670  Au.pbe-n-kjpaw_psl.1.0.0.UPF
+  Pd     106.4200  Pd.pbe-n-kjpaw_psl.1.0.0.UPF
+
+CELL_PARAMETERS angstrom
+     6.245128394    0.000000000   -1.303989163
+    -0.249207105    6.046744557   -0.762446896
+     0.000000000    0.000000000    8.159400940
+
+ATOMIC_POSITIONS crystal
+  Pd      0.466168851    0.700307667    0.429353267
+  Pd      0.835365951    0.700427651    0.928646505
+  Pd      0.079237610    0.840227306    0.428302765
+  Pd      0.715796292    0.449227482    0.311589271
+  Pd      0.211119860    0.950790167    0.171781912
+  Pd      0.916958570    0.198342696    0.308506519
+  Pd      0.713704228    0.948598683    0.668485463
+  Pd      0.217986554    0.199455395    0.927283347
+  Pd      0.335755289    0.200047433    0.429345876
+  Pd      0.215285033    0.449746609    0.673923314
+  Pd      0.468809128    0.699650764    0.929299653
+  Au      0.581049740    0.203707039    0.928405643
+
+K_POINTS automatic
+  4 4 2  0 0 0

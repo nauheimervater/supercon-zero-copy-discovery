@@ -1,11 +1,11 @@
 cff-version: 1.2.0
-message: "If you use this software or paper, please cite it as below."
+message: "If you use this software, please cite it as below. Work in progress."
 authors:
   - family-names: "Nauheimer"
     given-names: "Thomas"
     email: "nauheimer.t@gmail.com"
-title: "AI-Driven Superconductor Discovery on Unified-Memory APUs: Equivariant Crystal Diffusion, Zero-Copy MACE Relaxation, and First-Principles DFT Verification"
-version: 1.0.0
+title: "Toward Zero-Copy ML/DFT Materials Screening on Unified-Memory APUs: Pipeline Architecture (Work in Progress)"
+version: 1.0.1
 date-released: 2026-11-01
 url: "https://github.com/nauheimervater/supercon-zero-copy-discovery"
 repository-code: "https://github.com/nauheimervater/supercon-zero-copy-discovery"
@@ -13,7 +13,6 @@ license: MIT
 keywords:
   - superconductivity
   - crystal structure prediction
-  - equivariant diffusion
   - MACE
-  - Quantum ESPRESSO
   - unified memory APU
+  - ROCm

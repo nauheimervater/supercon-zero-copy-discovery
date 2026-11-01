@@ -2,61 +2,21 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb}
-\usepackage{booktabs}
 \usepackage{geometry}
 \usepackage{hyperref}
-\geometry{margin=1in}
+\geometry{margin=2.5cm}
 
-\title{\textbf{AI-Driven Superconductor Discovery on Unified-Memory APUs: Equivariant Crystal Diffusion, Zero-Copy MACE Relaxation, and First-Principles DFT Verification}}
-\author{Thomas Nauheimer\\
-\small Independent Researcher (\texttt{nauheimer.t@gmail.com})}
-\date{November 2026}
+\title{\textbf{Toward Zero-Copy ML/DFT Materials Screening on Unified-Memory APUs:\\Pipeline Architecture (Work in Progress)}}
+\author{Thomas Nauheimer\\Independent Researcher (\texttt{nauheimer.t@gmail.com})}
+\date{November 2026 --- Version 1.0.1}
 
 \begin{document}
 \maketitle
 
-\begin{abstract}
-We present a closed-loop computational pipeline for superconductor candidate discovery designed for unified-memory consumer workstations (AMD Ryzen AI Max+ 395 / Strix Halo APU with Radeon 8060S GPU and 128 GB unified LPDDR5X). The architecture couples four stages: (1) compositional Magpie feature screening trained on 21,263 entries of the UCI SuperCon dataset ($\mathrm{MAE} = 5.36\text{ K}$, $R^2 = 0.9288$); (2) joint equivariant diffusion over lattice matrices, fractional coordinates, and atomic species (DiffCSP-SC), reducing total diffusion loss by $99.01\%$ ($152.00 \to 1.50$) over 1,000 epochs; (3) native C++/HIP zero-copy pre-relaxation (\texttt{hipHostMallocMapped} and \texttt{torch::from\_blob}) with a $1.20\text{ \AA}$ hard-core collision filter that eliminates PCIe host-device transfer overhead ($144.7\text{ ms/step}$); and (4) first-principles plane-wave Density Functional Theory (DFT) verification using Quantum ESPRESSO v7.3 (PBE-GGA, PAW pseudopotentials, $50\text{ Ry} / 400\text{ Ry}$ cutoffs). Across 50 diffusion-generated candidates, the top five chemically distinct structures ($\mathrm{CeIn}_3$, $\mathrm{Sb}_2\mathrm{Te}_3$, $\mathrm{BaBiTe}$, $\mathrm{AuPd}_{11}$, and $\mathrm{CuIn}_2\mathrm{K}$) achieved $100\%$ SCF convergence and $100\%$ metallic character. In particular, $\mathrm{BaBiTe}$ emerges as a pressure-stabilized ($\sim 18.9\text{ GPa}$) metallic ternary candidate ($E_{\mathrm{tot}} = -1704.43\text{ Ry}$, $E_F = 2.98\text{ eV}$, residual forces $0.021\text{ Ry/Bohr}$).
-\end{abstract}
+\section*{Status and Erratum (v1.0.1)}
+Version 1.0.0 reported a per-step relaxation latency of 144.7\,ms, a Quantum ESPRESSO results table for five generated candidates (including BaBiTe), and a DiffCSP-SC loss table. On re-audit, none of these figures is backed by measurement outputs in this repository; they are \textbf{withdrawn}. This version describes the architecture and the components verifiable from the published code. See \texttt{paper/SuperCon\_Zero\_Copy\_Discovery.md} for the full text.
 
-\section{Pipeline Architecture}
-On unified-memory APUs (AMD Strix Halo GFX1151), allocating atomic coordinate and force buffers via \texttt{hipHostMalloc(..., hipHostMallocMapped)} and wrapping them with \texttt{torch::from\_blob} provides identical host and device virtual pointers (\texttt{cpu\_ptr == gpu\_ptr}), achieving $144.7\text{ ms/step}$ during TorchScript MACE pre-relaxation with zero PCIe copy overhead. A pre-MACE minimum-image collision filter enforces $d_{ij} \ge 1.20\text{ \AA}$ to prevent gradient divergence on raw diffusion samples.
-
-\section{Results}
-\begin{table}[h!]
-\centering
-\caption{DiffCSP-SC diffusion training convergence over 1,000 epochs on AMD Radeon 8060S (FP16).}
-\vspace{4pt}
-\begin{tabular}{lccc}
-\toprule
-Loss Component & Epoch 1 & Epoch 999 & Reduction \\
-\midrule
-Total Diffusion Loss & 152.00 & 1.50 & 99.01\% \\
-Lattice Matrix Loss & 127.00 & 0.58 & 99.54\% \\
-Fractional Coordinate Loss & 1.36 & 0.73 & 46.32\% \\
-Atom-Type Classification Loss & 1.20 & 0.18 & 85.00\% \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[h!]
-\centering
-\caption{First-principles Quantum ESPRESSO v7.3 PBE-GGA PAW verification ($50\text{ Ry} / 400\text{ Ry}$, $4\times 4\times 2$ $k$-mesh).}
-\vspace{4pt}
-\begin{tabular}{lcccccc}
-\toprule
-Material & Energy (Ry) & SCF Iter. & Pressure (kbar) & $E_F$ (eV) & Forces (Ry/Bohr) & Electrons \\
-\midrule
-$\mathrm{CeIn}_3$ & $-1703.79$ & 16 & $-27.8$ & 2.34 & 0.024 & 50 \\
-$\mathrm{Sb}_2\mathrm{Te}_3$ & $-1782.81$ & 18 & $-33.1$ & 1.26 & 0.073 & 28 \\
-$\mathbf{BaBiTe}$ & $\mathbf{-1704.43}$ & \textbf{24} & $\mathbf{+189.4}$ & \textbf{2.98} & \textbf{0.021} & \textbf{31} \\
-$\mathrm{AuPd}_{11}$ & $-4415.78$ & 22 & $-20.8$ & 6.15 & 0.676 & 121 \\
-$\mathrm{CuIn}_2\mathrm{K}$ & $-1147.38$ & 15 & $-19.7$ & 1.16 & 0.036 & 46 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\section{Limitations}
-While static SCF calculations confirm electronic stability, small residual forces ($0.021\text{ Ry/Bohr}$ for $\mathrm{BaBiTe}$), and metallic Fermi surfaces, full DFPT phonon dispersion $\omega(\mathbf{q})$, Eliashberg $\alpha^2 F(\omega)$ integration, and ternary convex-hull enthalpy comparisons remain necessary prior to experimental synthesis.
+\section*{Abstract}
+We describe a closed-loop pipeline for superconductor candidate screening on a unified-memory workstation (AMD Ryzen AI Max+ 395 / Strix Halo, ROCm): Magpie-style compositional screening, a DiffCSP-style structure generator, a C++/HIP relaxation layer using \texttt{hipHostMallocMapped} buffers wrapped by \texttt{torch::from\_blob} (no explicit host--device copies), and a hand-off to Quantum ESPRESSO. On Strix Halo there is no PCIe link between CPU and iGPU; any benefit of the zero-copy design stems from avoided copy and dispatch overhead and must be established by a same-GPU mapped-vs-copied benchmark, which is pending. Quantitative performance and DFT results will be published only together with raw outputs.
 
 \end{document}

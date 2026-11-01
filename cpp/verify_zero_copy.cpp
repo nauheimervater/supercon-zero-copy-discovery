@@ -38,7 +38,7 @@ int main() {
     std::cout << "Device (GPU) virtual address : " << static_cast<void*>(gpu_ptr) << "\n";
 
     if (cpu_ptr == gpu_ptr) {
-        std::cout << "[PASS] 100% identical virtual address space (zero PCIe copy).\n";
+        std::cout << "[PASS] Host and device pointers identical (no explicit host-device copy).\n";
     } else {
         std::cout << "[INFO] Mapped host/device aliases active.\n";
     }

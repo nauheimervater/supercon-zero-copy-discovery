@@ -1,13 +1,13 @@
 """
-supercon_discovery: Compositional Magpie Feature Extraction, Allen-Dynes McMillan Tc
-Modeling, Zero-Copy Unified-Memory Relaxation Diagnostics, and First-Principles DFT
-Benchmark Verification for Superconductor Discovery.
+supercon_discovery: Magpie-style compositional features, Allen-Dynes McMillan Tc
+modeling, a pre-MACE core-repulsion filter, and an analytic zero-copy latency model.
+
+Status (v1.0.1): work in progress. Measured gfx1151 benchmarks and Quantum ESPRESSO
+outputs are not yet published in this repository.
 """
 
 from .screening import (
     ELEMENT_DATA,
-    DFT_VERIFIED_CANDIDATES,
-    DIFFCSP_CONVERGENCE_TABLE,
     parse_formula,
     compute_magpie_features,
     allen_dynes_tc,
@@ -17,8 +17,6 @@ from .screening import (
 
 __all__ = [
     "ELEMENT_DATA",
-    "DFT_VERIFIED_CANDIDATES",
-    "DIFFCSP_CONVERGENCE_TABLE",
     "parse_formula",
     "compute_magpie_features",
     "allen_dynes_tc",

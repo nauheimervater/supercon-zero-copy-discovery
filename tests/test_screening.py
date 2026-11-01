@@ -2,8 +2,6 @@ import unittest
 import numpy as np
 
 from supercon_discovery import (
-    DFT_VERIFIED_CANDIDATES,
-    DIFFCSP_CONVERGENCE_TABLE,
     parse_formula,
     compute_magpie_features,
     allen_dynes_tc,
@@ -41,7 +39,7 @@ class TestSuperConDiscovery(unittest.TestCase):
 
     def test_core_repulsion_filter(self):
         cell = np.diag([5.0, 5.0, 5.0])
-        # Place two atoms only 0.3 Angstrom apart
+        # Place two atoms only 0.2 Angstrom apart
         pos = np.array([
             [1.0, 1.0, 1.0],
             [1.2, 1.0, 1.0],
@@ -51,15 +49,14 @@ class TestSuperConDiscovery(unittest.TestCase):
         self.assertGreaterEqual(clashes, 1)
         self.assertGreaterEqual(min_dist, 1.199)
 
-    def test_dft_and_zero_copy_tables(self):
-        self.assertEqual(len(DFT_VERIFIED_CANDIDATES), 5)
-        babite = [c for c in DFT_VERIFIED_CANDIDATES if c["formula"] == "BaBiTe"][0]
-        self.assertAlmostEqual(babite["fermi_energy_ev"], 2.98, places=2)
-        self.assertAlmostEqual(babite["total_energy_ry"], -1704.43, places=2)
-
-        zc = zero_copy_transfer_speedup()
+    def test_zero_copy_latency_model_arithmetic(self):
+        # Pure arithmetic check of the analytic model with arbitrary inputs (not a benchmark).
+        zc = zero_copy_transfer_speedup(compute_ms_per_step=100.0, copy_overhead_ms_per_step=10.0,
+                                        dispatch_overhead_ms_per_step=0.0, num_steps=10)
         self.assertEqual(zc["host_device_bytes_copied_zero_copy"], 0.0)
-        self.assertGreater(zc["speedup_vs_ase_pcie"], 1.3)
+        self.assertAlmostEqual(zc["zero_copy_total_s"], 1.0)
+        self.assertAlmostEqual(zc["copy_based_total_s"], 1.1)
+        self.assertAlmostEqual(zc["modeled_speedup"], 1.1)
 
 
 if __name__ == "__main__":

@@ -6,8 +6,9 @@ Pipeline:
      factors f1 and f2.
   3. Pre-MACE interatomic collision filter (1.2 Angstrom minimum distance under PBC) to
      prevent NaN-gradient cascades during unified-memory relaxation.
-  4. Zero-copy unified-memory vs. discrete PCIe transfer latency model and measured
-     Quantum ESPRESSO v7.3 PBE-GGA verification tables.
+  4. A simple analytic latency model for zero-copy vs. copy-based relaxation loops.
+     NOTE (v1.0.1): this is a model with user-supplied inputs, NOT a measurement.
+     Measured gfx1151 benchmarks and Quantum ESPRESSO outputs are not yet published.
 
 Author: Thomas Nauheimer (2026)
 License: MIT
@@ -77,68 +78,6 @@ ELEMENT_DATA: Dict[str, Dict[str, object]] = {
     "Pb": {"Z": 82, "mass": 207.20,  "radius": 1.54, "en": 2.33, "valence": 4, "group": 14, "period": 6, "block": "p", "fusion_heat": 4.77,  "thermal_cond": 35.3},
     "Bi": {"Z": 83, "mass": 208.98,  "radius": 1.43, "en": 2.02, "valence": 5, "group": 15, "period": 6, "block": "p", "fusion_heat": 11.30, "thermal_cond": 7.97},
 }
-
-
-DIFFCSP_CONVERGENCE_TABLE: List[Dict[str, float]] = [
-    {"metric": "Total Diffusion Loss", "epoch_1": 152.00, "epoch_999": 1.50, "reduction_pct": 99.01},
-    {"metric": "Lattice Loss",         "epoch_1": 127.00, "epoch_999": 0.58, "reduction_pct": 99.54},
-    {"metric": "Coordinate Loss",      "epoch_1": 1.36,   "epoch_999": 0.73, "reduction_pct": 46.32},
-    {"metric": "Atom-Type Loss",       "epoch_1": 1.20,   "epoch_999": 0.18, "reduction_pct": 85.00},
-]
-
-
-DFT_VERIFIED_CANDIDATES: List[Dict[str, object]] = [
-    {
-        "formula": "CeIn3",
-        "total_energy_ry": -1703.79,
-        "scf_iterations": 16,
-        "pressure_kbar": -27.8,
-        "fermi_energy_ev": 2.34,
-        "total_force_ry_bohr": 0.024,
-        "num_electrons": 50,
-        "electronic_character": "Metallic (known heavy-fermion reference, Tc ~ 0.2 K)",
-    },
-    {
-        "formula": "Sb2Te3",
-        "total_energy_ry": -1782.81,
-        "scf_iterations": 18,
-        "pressure_kbar": -33.1,
-        "fermi_energy_ev": 1.26,
-        "total_force_ry_bohr": 0.073,
-        "num_electrons": 28,
-        "electronic_character": "Metallic / topological chalcogenide reference",
-    },
-    {
-        "formula": "BaBiTe",
-        "total_energy_ry": -1704.43,
-        "scf_iterations": 24,
-        "pressure_kbar": 189.4,
-        "fermi_energy_ev": 2.98,
-        "total_force_ry_bohr": 0.021,
-        "num_electrons": 31,
-        "electronic_character": "Metallic ternary candidate (pressure-stabilized ~18.9 GPa)",
-    },
-    {
-        "formula": "AuPd11",
-        "total_energy_ry": -4415.78,
-        "scf_iterations": 22,
-        "pressure_kbar": -20.8,
-        "fermi_energy_ev": 6.15,
-        "total_force_ry_bohr": 0.676,
-        "num_electrons": 121,
-        "electronic_character": "Metallic transition-metal rich alloy",
-    },
-    {
-        "formula": "CuIn2K",
-        "total_energy_ry": -1147.38,
-        "scf_iterations": 15,
-        "pressure_kbar": -19.7,
-        "fermi_energy_ev": 1.16,
-        "total_force_ry_bohr": 0.036,
-        "num_electrons": 46,
-        "electronic_character": "Metallic ternary intermetallic",
-    },
-]
 
 
 def parse_formula(formula: str) -> Dict[str, float]:
@@ -277,17 +216,21 @@ def apply_core_repulsion_filter(
 
 
 def zero_copy_transfer_speedup(
+    compute_ms_per_step: float,
+    copy_overhead_ms_per_step: float,
+    dispatch_overhead_ms_per_step: float = 0.0,
     num_atoms: int = 54,
     num_steps: int = 1000,
-    compute_ms_per_step: float = 144.7,
-    python_ase_dispatch_overhead_ms: float = 42.5,
-    pcie_roundtrip_overhead_ms: float = 18.0,
 ) -> Dict[str, float]:
     """
-    Quantify the execution latency of native C++ zero-copy unified-memory relaxation
-    (hipHostMallocMapped + torch::from_blob on Strix Halo GFX1151) versus standard
-    Python/ASE + PCIe host-device copy loops.
+    ANALYTIC MODEL (not a measurement): estimated wall time of a relaxation loop with
+    and without per-step host<->device buffer copies, given user-supplied per-step
+    costs. All timing inputs must come from real measurements on the target hardware.
+    On unified-memory APUs (e.g. Strix Halo) there is no PCIe link between CPU and iGPU;
+    any saving comes from avoided memcpy / dispatch overhead, not from PCIe bandwidth.
     """
+    python_ase_dispatch_overhead_ms = dispatch_overhead_ms_per_step
+    pcie_roundtrip_overhead_ms = copy_overhead_ms_per_step
     t_zero_copy_s = (num_steps * compute_ms_per_step) / 1000.0
     t_standard_pcie_s = (
         num_steps * (compute_ms_per_step + python_ase_dispatch_overhead_ms + pcie_roundtrip_overhead_ms)
@@ -296,10 +239,10 @@ def zero_copy_transfer_speedup(
         "num_atoms": float(num_atoms),
         "num_steps": float(num_steps),
         "zero_copy_step_ms": compute_ms_per_step,
-        "standard_pcie_ase_step_ms": compute_ms_per_step + python_ase_dispatch_overhead_ms + pcie_roundtrip_overhead_ms,
+        "copy_based_step_ms": compute_ms_per_step + python_ase_dispatch_overhead_ms + pcie_roundtrip_overhead_ms,
         "zero_copy_total_s": t_zero_copy_s,
-        "standard_pcie_total_s": t_standard_pcie_s,
+        "copy_based_total_s": t_standard_pcie_s,
         "host_device_bytes_copied_zero_copy": 0.0,
         "host_device_bytes_copied_standard": float(num_steps * num_atoms * 3 * 8 * 2),
-        "speedup_vs_ase_pcie": t_standard_pcie_s / t_zero_copy_s,
+        "modeled_speedup": t_standard_pcie_s / t_zero_copy_s,
     }

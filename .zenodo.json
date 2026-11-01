@@ -1,8 +1,8 @@
 {
-  "title": "AI-Driven Superconductor Discovery on Unified-Memory APUs: Equivariant Crystal Diffusion, Zero-Copy MACE Relaxation, and First-Principles DFT Verification",
-  "description": "Closed-loop superconductor candidate discovery combining Magpie compositional screening, DiffCSP-SC equivariant crystal diffusion, native C++/HIP zero-copy MACE pre-relaxation on unified-memory APUs (AMD Strix Halo), and Quantum ESPRESSO v7.3 PBE-GGA PAW verification.",
-  "upload_type": "publication",
-  "publication_type": "preprint",
+  "title": "Toward Zero-Copy ML/DFT Materials Screening on Unified-Memory APUs: Pipeline Architecture (Work in Progress)",
+  "version": "1.0.1",
+  "description": "Work-in-progress technical note and code: Magpie-style compositional features, Allen-Dynes Tc, a periodic core-repulsion filter, and C++/HIP zero-copy (hipHostMallocMapped + torch::from_blob) sources for unified-memory APUs (AMD Strix Halo). Version 1.0.1 withdraws unverified latency and DFT figures reported in 1.0.0.",
+  "upload_type": "software",
   "creators": [
     {
       "name": "Nauheimer, Thomas",
@@ -12,11 +12,9 @@
   "license": "MIT",
   "keywords": [
     "Superconductivity",
-    "Crystal Structure Prediction",
-    "DiffCSP",
     "MACE",
-    "Quantum ESPRESSO",
     "Unified Memory",
-    "BaBiTe"
+    "ROCm",
+    "Work in Progress"
   ]
 }

@@ -1,0 +1,22 @@
+{
+  "title": "AI-Driven Superconductor Discovery on Unified-Memory APUs: Equivariant Crystal Diffusion, Zero-Copy MACE Relaxation, and First-Principles DFT Verification",
+  "description": "Closed-loop superconductor candidate discovery combining Magpie compositional screening, DiffCSP-SC equivariant crystal diffusion, native C++/HIP zero-copy MACE pre-relaxation on unified-memory APUs (AMD Strix Halo), and Quantum ESPRESSO v7.3 PBE-GGA PAW verification.",
+  "upload_type": "publication",
+  "publication_type": "preprint",
+  "creators": [
+    {
+      "name": "Nauheimer, Thomas",
+      "affiliation": "Independent Researcher"
+    }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "Superconductivity",
+    "Crystal Structure Prediction",
+    "DiffCSP",
+    "MACE",
+    "Quantum ESPRESSO",
+    "Unified Memory",
+    "BaBiTe"
+  ]
+}
